@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MyTextField extends StatefulWidget {
-  final controller;
-  final bool obsecureText;
+  final TextEditingController controller;
+  final bool isPasswordField;
   final String hint;
   final Icon icon;
 
@@ -11,7 +11,7 @@ class MyTextField extends StatefulWidget {
     required this.hint,
     required this.icon,
     required this.controller,
-    required this.obsecureText,
+    required this.isPasswordField,
   });
 
   @override
@@ -24,7 +24,7 @@ class _MyTextFieldState extends State<MyTextField> {
   @override
   void initState() {
     super.initState();
-    _obsecureText = widget.obsecureText;
+    _obsecureText = widget.isPasswordField;
   }
 
   void _toggleVisibility() {
@@ -38,20 +38,22 @@ class _MyTextFieldState extends State<MyTextField> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: TextField(
-        obscureText: _obsecureText,
+        obscureText: widget.isPasswordField ? _obsecureText : false,
         decoration: InputDecoration(
           hintText: widget.hint,
           hintStyle: TextStyle(
             color: Theme.of(context).colorScheme.primary,
           ),
           prefixIcon: widget.icon,
-          suffixIcon: IconButton(
-              onPressed: _toggleVisibility,
-              icon: Icon(
-                  _obsecureText
-                      ? Icons.visibility
-                      : Icons.visibility_off)
-          ),
+          suffixIcon: widget.isPasswordField ?
+          IconButton(
+            onPressed: _toggleVisibility,
+            icon: Icon(
+                _obsecureText
+                    ? Icons.visibility_off
+                    : Icons.visibility),
+            color: Theme.of(context).colorScheme.inversePrimary,
+          ) : null,
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
               color: Theme.of(context).colorScheme.primary,
