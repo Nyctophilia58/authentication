@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class MyTextField extends StatefulWidget {
@@ -38,6 +40,7 @@ class _MyTextFieldState extends State<MyTextField> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: TextField(
+        controller: widget.controller,
         obscureText: widget.isPasswordField ? _obsecureText : false,
         decoration: InputDecoration(
           hintText: widget.hint,
@@ -69,7 +72,13 @@ class _MyTextFieldState extends State<MyTextField> {
           fillColor: Theme.of(context).colorScheme.tertiary,
           filled: true,
         ),
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.inversePrimary,
+
+        ),
+
       ),
+
     );
   }
 }

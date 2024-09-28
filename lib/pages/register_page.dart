@@ -1,23 +1,24 @@
 import 'package:authentication/components/my_button.dart';
+import 'package:authentication/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/auth_service.dart';
 import '../theme/theme_provider.dart';
 import '../components/my_textfield.dart';
 import '../components/square_tile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginPage extends StatefulWidget {
+class RegisterPage extends StatefulWidget {
   final Function()? onTap;
-  const LoginPage({super.key, this.onTap});
+  const RegisterPage({super.key, this.onTap});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   bool get isDarkMode =>
       Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
@@ -26,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
     Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
   }
 
-  void signUserIn() async{
+  void signUserUp() async{
     showDialog(
       context: context,
       builder: (context) {
@@ -36,12 +37,19 @@ class _LoginPageState extends State<LoginPage> {
       },
     );
 
+    //make sure the passwords match while signing up
     try{
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
-      Navigator.pop(context);
+      if (passwordController.text == confirmPasswordController.text){
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailController.text,
+          password: passwordController.text,
+        );
+        Navigator.pop(context);
+      }
+      else{
+        Navigator.pop(context);
+        showErrorMessage('Passwords do not match');
+      }
     } on FirebaseAuthException catch (e){
       Navigator.pop(context);
       showErrorMessage(e.code);
@@ -111,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 //welcome back you've been missed
                 Text(
-                  'Welcome back,You\'ve been missed!',style: TextStyle(
+                  'Let\'s create an account for you!',style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -120,7 +128,6 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 25),
 
-                //username textfield
                 MyTextField(
                   controller: emailController,
                   hint: 'Email',
@@ -132,7 +139,6 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 10),
 
-                //password textfield
                 MyTextField(
                   controller: passwordController,
                   hint: 'Password',
@@ -144,20 +150,12 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 10),
 
-                // forgot password
-                Padding(
-                  padding: const EdgeInsets.only(right: 25),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
+                MyTextField(
+                  controller: confirmPasswordController,
+                  hint: 'Confirm Password',
+                  isPasswordField: true,
+                  icon: Icon(Icons.lock,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
 
@@ -165,8 +163,8 @@ class _LoginPageState extends State<LoginPage> {
 
                 // sign in button
                 MyButton(
-                    text: 'Sign In',
-                    onTap: signUserIn,
+                  text: 'Sign Up',
+                  onTap: signUserUp,
                 ),
 
                 const SizedBox(height: 50),
@@ -205,7 +203,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 50),
 
-                Padding(padding: EdgeInsets.symmetric(horizontal: 25),
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 25),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -217,7 +215,7 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(width: 25),
 
                       SquareTile(
-                        onTap: () {}, //=> AuthService().signInWithApple(),
+                        onTap: () {}, // => AuthService().signInWithApple(),
                         imagePath: 'lib/images/apple.png',
                       ),
                     ],
@@ -230,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Don\'t have an account?',
+                      'Already have an account?',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                         fontSize: 12,
@@ -242,7 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                     GestureDetector(
                       onTap: widget.onTap,
                       child: const Text(
-                        'Sign Up',
+                        'Login now!',
                         style: TextStyle(
                           color: Colors.blue,
                           fontSize: 16,
